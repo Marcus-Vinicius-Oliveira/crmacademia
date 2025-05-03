@@ -1,10 +1,13 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Req, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Request } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
@@ -17,5 +20,24 @@ export class AuthController {
   async register(@Body() body: CreateUserDto) {
     return this.authService.register(body);
   }
-  
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('refresh')
+  async refresh(@Req() req: Request, @Body() { refreshToken }: RefreshTokenDto) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token ausente.');
+    }
+
+    const user = req.user as any;
+    return this.authService.refreshTokens(user.userId, refreshToken);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  getProfile(@Req() req: Request) {
+    return {
+      message: 'Usuário autenticado',
+      user: req.user,
+    };
+  }
 }
