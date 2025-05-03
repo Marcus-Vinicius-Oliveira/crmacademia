@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { PrismaService } from './prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { AlunoModule } from './aluno/aluno.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './user/user.module';
     }]),
     AuthModule,
     UserModule,
+    AlunoModule,
   ],
   providers: [
     PrismaService,
