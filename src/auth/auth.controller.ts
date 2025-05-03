@@ -1,3 +1,8 @@
+import { ErrorMessages } from '../common/enums/error-messages.enum';
+import { RefreshTokenGuard } from '../auth/guards/refresh-token.guard';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+
+
 import {
   Controller,
   Post,
@@ -49,21 +54,21 @@ export class AuthController {
     return this.authService.register(body);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   @ApiBearerAuth()
   @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({ status: 200, description: 'Novo token gerado com sucesso' })
   async refresh(@Req() req: Request, @Body() { refreshToken }: RefreshTokenDto) {
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token ausente.');
+      throw new UnauthorizedException(ErrorMessages.REFRESH_TOKEN_MISSING);
     }
 
     const user = req.user as any;
     return this.authService.refreshTokens(user.userId, refreshToken);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AccessTokenGuard)
   @Get('me')
   @ApiBearerAuth()
   @ApiResponse({ status: 200, description: 'Retorna dados do usuário autenticado' })

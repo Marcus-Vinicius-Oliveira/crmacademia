@@ -3,6 +3,7 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
+import { ErrorMessages } from '../common/enums/error-messages.enum';
 
 @Injectable()
 export class AuthService {
@@ -59,7 +60,7 @@ export class AuthService {
     });
 
     if (!user || !user.hashedRefreshToken) {
-      throw new ForbiddenException('Access Denied');
+      throw new ForbiddenException(ErrorMessages.ACCESS_DENIED);
     }
 
     const isMatch = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
